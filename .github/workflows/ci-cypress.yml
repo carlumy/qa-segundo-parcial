@@ -1,0 +1,32 @@
+name: CI — Cypress
+
+on:
+  push:
+    branches: [ main, feat/config-tests ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install deps (npm ci)
+        run: npm ci
+
+            - name: Verify Cypress
+        run: npx cypress verify || npx cypress install
+
+      - name: Run Cypress E2E
+        env:
+          BASE_URL: https://example.cypress.io
+        run: npx cypress run --config-file cypress.config.js --spec cypress/e2e/sanity.cy.js || (npm rebuild cypress && npx cypress run)

@@ -1,10 +1,10 @@
-name: CI – Cypress
+name: CI — Cypress
 
 on:
   push:
-    branches: [ "feat/config-tests" ]
+    branches: [ main, feat/config-tests ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ main ]
 
 jobs:
   e2e:
@@ -17,40 +17,16 @@ jobs:
       - name: Setup Node 20
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: '20'
           cache: 'npm'
 
-      - name: Debug repo contents
-        run: |
-          pwd
-          ls -la
-          cat package.json | head -n 50 || true
-          test -f package-lock.json && echo "LOCK OK" || (echo "NO LOCK"; exit 1)
-
-      # FORZAR que se instalen devDependencies
-      - name: Install deps (include dev)
-        env:
-          NODE_ENV: ""                   # evita modo producción
-          npm_config_include: dev
-        run: |
-          npm ci --include=dev --no-audit --no-fund || npm install --include=dev --no-audit --no-fund
-          echo "node_modules top-level:"
-          ls -la node_modules | head -n 50 || true
-
-      # Forzar instalación binaria de Cypress (descarga cacheable)
-      - name: Ensure Cypress binary
-        run: npx cypress install
-
-      # Comprobar que Cypress está resolviéndose
-      - name: Mostrar dónde quedó Cypress
-        run: |
-          node -p "require.resolve('cypress/package.json')"
-          npx cypress --version
+      - name: Install deps (npm ci)
+        run: npm ci
 
       - name: Verify Cypress
         run: npx cypress verify
 
       - name: Run Cypress E2E
+        run: npx cypress run --config-file cypress.config.js --spec cypress/e2e/sanity.cy.js
         env:
           BASE_URL: https://example.cypress.io
-        run: npx cypress run --spec cypress/e2e/sanity.cy.js

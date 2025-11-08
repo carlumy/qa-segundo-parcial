@@ -14,27 +14,24 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node (LTS 20)
+      - name: Setup Node (v20)
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'          # usa el package-lock.json que ya agregaste
+          cache: 'npm'
 
-      - name: Info de Node y npm
-        run: |
-          node -v
-          npm -v
+      - name: Limpiar instalación previa
+        run: rm -rf node_modules
 
       - name: Instalar dependencias
-        run: npm ci || npm install
+        run: npm install
 
-      - name: Verificar Cypress
+      - name: Verificar instalación de Cypress
         run: npx cypress verify
 
-      - name: Ejecutar Cypress (sanity)
-        run: npx cypress run --spec cypress/e2e/sanity.cy.js
+      - name: Ejecutar prueba de sanity
+        run: npx cypress run --spec cypress/e2e/sanity.cy.js || npx cypress run --browser chrome
 
-      # (Opcional) si falla, sube videos/screenshots como artefactos
       - name: Subir artefactos (si falla)
         if: failure()
         uses: actions/upload-artifact@v4

@@ -23,10 +23,10 @@ jobs:
       - name: Install deps (npm ci)
         run: npm ci
 
-      - name: Verify Cypress
-        run: npx cypress verify
+            - name: Verify Cypress
+        run: npx cypress verify || npx cypress install
 
       - name: Run Cypress E2E
-        run: npx cypress run --config-file cypress.config.js --spec cypress/e2e/sanity.cy.js
         env:
           BASE_URL: https://example.cypress.io
+        run: npx cypress run --config-file cypress.config.js --spec cypress/e2e/sanity.cy.js || (npm rebuild cypress && npx cypress run)

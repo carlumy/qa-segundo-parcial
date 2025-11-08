@@ -20,17 +20,14 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
-      - name: Limpiar instalación previa
-        run: rm -rf node_modules
-
       - name: Instalar dependencias
         run: npm install
 
       - name: Verificar instalación de Cypress
         run: npx cypress verify
 
-      - name: Ejecutar prueba de sanity
-        run: npx cypress run --spec cypress/e2e/sanity.cy.js || npx cypress run --browser chrome
+      - name: Ejecutar pruebas E2E con configuración explícita
+        run: npx cypress run --config-file cypress.config.js --spec cypress/e2e/sanity.cy.js
 
       - name: Subir artefactos (si falla)
         if: failure()

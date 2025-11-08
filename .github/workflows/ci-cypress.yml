@@ -20,15 +20,34 @@ jobs:
           node-version: 20
           cache: 'npm'
 
-      - name: Install deps (incluye devDependencies)
-        run: npm ci
+      - name: Debug repo contents
+        run: |
+          pwd
+          ls -la
+          cat package.json | head -n 50 || true
+          test -f package-lock.json && echo "LOCK OK" || (echo "NO LOCK"; exit 1)
+
+      # FORZAR que se instalen devDependencies
+      - name: Install deps (include dev)
         env:
-          NODE_ENV: ""   # evita que npm omita devDependencies
+          NODE_ENV: ""                   # evita modo producción
+          npm_config_include: dev
+        run: |
+          npm ci --include=dev --no-audit --no-fund || npm install --include=dev --no-audit --no-fund
+          echo "node_modules top-level:"
+          ls -la node_modules | head -n 50 || true
 
+      # Forzar instalación binaria de Cypress (descarga cacheable)
+      - name: Ensure Cypress binary
+        run: npx cypress install
+
+      # Comprobar que Cypress está resolviéndose
       - name: Mostrar dónde quedó Cypress
-        run: node -p "require.resolve('cypress/package.json')"
+        run: |
+          node -p "require.resolve('cypress/package.json')"
+          npx cypress --version
 
-      - name: Verificar Cypress
+      - name: Verify Cypress
         run: npx cypress verify
 
       - name: Run Cypress E2E

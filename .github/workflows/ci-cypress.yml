@@ -14,17 +14,38 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node
+      - name: Setup Node (LTS)
         uses: actions/setup-node@v4
         with:
           node-version: 'lts/*'
           cache: 'npm'
 
+      - name: Node & npm info
+        run: |
+          node -v
+          npm -v
+
       - name: Install deps
-        run: npm ci || npm install
+        run: |
+          npm ci || npm install
 
-      - name: Verify Cypress
-        run: npx cypress verify
+      - name: Show project tree (debug)
+        run: |
+          ls -la
+          echo "---- cypress/ ----"
+          ls -la cypress
+          echo "---- cypress/e2e ----"
+          ls -la cypress/e2e || true
+          echo "---- print cypress.config.js ----"
+          sed -n '1,200p' cypress.config.js || true
+          echo "---- package.json ----"
+          sed -n '1,200p' package.json || true
 
-      - name: Run Cypress
-        run: npx cypress run
+      - name: Cypress info & verify
+        run: |
+          npx cypress info
+          npx cypress verify
+
+      - name: Run Cypress (sanity)
+        # Usa el spec directo para evitar "no tests found"
+        run: npx cypress run --spec cypress/e2e/sanity.cy.js

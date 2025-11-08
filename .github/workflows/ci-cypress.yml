@@ -1,8 +1,8 @@
-name: CI - Cypress
+name: CI – Cypress
 
 on:
   push:
-    branches: [ "main", "feat/**" ]
+    branches: [ "feat/config-tests" ]
   pull_request:
     branches: [ "main" ]
 
@@ -10,30 +10,30 @@ jobs:
   e2e:
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: .
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node (v20)
+      - name: Setup Node 20
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: 20
           cache: 'npm'
 
-      - name: Instalar dependencias
-        run: npm install
+      - name: Install deps (incluye devDependencies)
+        run: npm ci
+        env:
+          # Evita que npm omita devDependencies
+          NODE_ENV: ""
 
-      - name: Verificar instalación de Cypress
+      - name: Verify Cypress
         run: npx cypress verify
 
-      - name: Ejecutar pruebas E2E con configuración explícita
-        run: npx cypress run --config-file cypress.config.js --spec cypress/e2e/sanity.cy.js
-
-      - name: Subir artefactos (si falla)
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: cypress-artifacts
-          path: |
-            cypress/videos/**
-            cypress/screenshots/**
+      - name: Run Cypress E2E (config explícito)
+        run: npx cypress run --project . --config-file cypress.config.js --spec cypress/e2e/sanity.cy.js
+        env:
+          BASE_URL: https://example.cypress.io

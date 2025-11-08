@@ -2,10 +2,11 @@ const { defineConfig } = require('cypress');
 
 module.exports = defineConfig({
   e2e: {
-    baseUrl: process.env.BASE_URL || 'https://ejemplo-app.com',
+    // usa example para que el sanity pase siempre; luego cambiamos a tu app
+    baseUrl: 'https://example.cypress.io',
     setupNodeEvents(on, config) {
-      // Aquí puedes agregar plugins o eventos personalizados si los necesitas
+      // plugins/eventos si los necesitas
     },
   },
-  video: false, // Desactiva la grabación de video para acelerar las pruebas
+  video: false,
 });

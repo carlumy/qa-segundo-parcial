@@ -10,10 +10,6 @@ jobs:
   e2e:
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        working-directory: .
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -27,13 +23,15 @@ jobs:
       - name: Install deps (incluye devDependencies)
         run: npm ci
         env:
-          # Evita que npm omita devDependencies
-          NODE_ENV: ""
+          NODE_ENV: ""   # evita que npm omita devDependencies
 
-      - name: Verify Cypress
+      - name: Mostrar dónde quedó Cypress
+        run: node -p "require.resolve('cypress/package.json')"
+
+      - name: Verificar Cypress
         run: npx cypress verify
 
-      - name: Run Cypress E2E (config explícito)
-        run: npx cypress run --project . --config-file cypress.config.js --spec cypress/e2e/sanity.cy.js
+      - name: Run Cypress E2E
         env:
           BASE_URL: https://example.cypress.io
+        run: npx cypress run --spec cypress/e2e/sanity.cy.js

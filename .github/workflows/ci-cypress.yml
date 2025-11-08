@@ -14,38 +14,32 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node (LTS)
+      - name: Setup Node (LTS 20)
         uses: actions/setup-node@v4
         with:
-          node-version: 'lts/*'
-          cache: 'npm'
+          node-version: '20'
+          cache: 'npm'          # usa el package-lock.json que ya agregaste
 
-      - name: Node & npm info
+      - name: Info de Node y npm
         run: |
           node -v
           npm -v
 
-      - name: Install deps
-        run: |
-          npm ci || npm install
+      - name: Instalar dependencias
+        run: npm ci || npm install
 
-      - name: Show project tree (debug)
-        run: |
-          ls -la
-          echo "---- cypress/ ----"
-          ls -la cypress
-          echo "---- cypress/e2e ----"
-          ls -la cypress/e2e || true
-          echo "---- print cypress.config.js ----"
-          sed -n '1,200p' cypress.config.js || true
-          echo "---- package.json ----"
-          sed -n '1,200p' package.json || true
+      - name: Verificar Cypress
+        run: npx cypress verify
 
-      - name: Cypress info & verify
-        run: |
-          npx cypress info
-          npx cypress verify
-
-      - name: Run Cypress (sanity)
-        # Usa el spec directo para evitar "no tests found"
+      - name: Ejecutar Cypress (sanity)
         run: npx cypress run --spec cypress/e2e/sanity.cy.js
+
+      # (Opcional) si falla, sube videos/screenshots como artefactos
+      - name: Subir artefactos (si falla)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-artifacts
+          path: |
+            cypress/videos/**
+            cypress/screenshots/**
